@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#123A47">
+<title>Panel</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icono.svg" type="image/svg+xml">
+<style>
+:root{--fondo:#F4F6F7;--panel:#fff;--tinta:#16242A;--suave:#5E6E74;--linea:#E1E7E9;--marca:#1F6F86;--ok:#1E8A55;--aviso:#B7791F;--rojo:#C0392B;--chip:#EEF3F4}
+@media (prefers-color-scheme:dark){:root{--fondo:#0F1719;--panel:#172227;--tinta:#E7EEF0;--suave:#93A5AB;--linea:#26363C;--marca:#5FB3C9;--ok:#4CC38A;--aviso:#E0A84A;--rojo:#F07167;--chip:#1E2C31}}
+*{box-sizing:border-box}html,body{margin:0;background:var(--fondo);color:var(--tinta);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--marca);color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;display:flex;align-items:center;gap:10px}
+header h1{font-size:17px;margin:0;flex:1}header small{opacity:.85;font-size:12px}
+main{padding:12px 12px calc(84px + env(safe-area-inset-bottom))}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--panel);border-top:1px solid var(--linea);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--suave);padding:9px 2px 8px;font-size:11.5px;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button svg{width:22px;height:22px}nav button.activo{color:var(--marca);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--linea);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.panel h2{font-size:15px;margin:0 0 8px}
+.fila{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--linea)}.fila:last-child{border:0}
+.n{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}.s{color:var(--suave);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.kpi{background:var(--panel);border:1px solid var(--linea);border-radius:12px;padding:10px;text-align:center}.kpi b{display:block;font-size:20px}.kpi span{font-size:11.5px;color:var(--suave)}
+select,input{font:inherit;color:var(--tinta);background:var(--fondo);border:1px solid var(--linea);border-radius:10px;padding:9px 10px;width:100%}
+.barra{display:flex;gap:8px;margin-bottom:12px}.barra>*{flex:1}
+.cli{background:var(--panel);border:1px solid var(--linea);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.cli .nom{font-weight:600;margin-bottom:8px}.est{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.est label{font-size:11px;color:var(--suave);display:flex;flex-direction:column;gap:3px}.est select{padding:7px 6px;font-size:13px}
+.ok{border-color:color-mix(in srgb,var(--ok) 55%,transparent)!important;color:var(--ok)}.pend{border-color:color-mix(in srgb,var(--aviso) 60%,transparent)!important;color:var(--aviso)}
+.alerta{border-left:4px solid var(--aviso);padding:8px 10px;background:var(--panel);border-radius:10px;margin-bottom:8px;font-size:13.5px}
+.chip{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--chip);font-size:12px}
+.chip.ok{color:var(--ok)}.chip.mal{color:var(--rojo)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:6px 4px;border-bottom:1px solid var(--linea);text-align:left}th{color:var(--suave);font-weight:600;font-size:12px}
+.desliza{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.centro{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px}
+.centro h1{font-size:22px;margin:0 0 6px}.btn{border:0;border-radius:12px;background:var(--marca);color:#fff;padding:12px;font:600 15px system-ui;width:100%}
+.btn.sec{background:var(--chip);color:var(--tinta)}.err{color:var(--rojo);font-size:13.5px;min-height:20px;margin:8px 0}
+.pendiente-sync{font-size:12px;color:var(--aviso);margin:-4px 0 10px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+const nf = new Intl.NumberFormat("es-CL");
+const $p = v => v === null || v === undefined ? "–" : (v < 0 ? "−$" : "$") + nf.format(Math.abs(Math.round(v)));
+const MES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const mesN = p => `${MES[+p.slice(4) - 1]} ${p.slice(0, 4)}`;
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const b64 = { a: s => Uint8Array.from(atob(s), c => c.charCodeAt(0)), de: u => btoa(String.fromCharCode(...u)) };
+let D = null, CLAVE = null, SAL = null, vista = "inicio", periodo = null, cliSel = null;
+
+// ---------- guardar la clave derivada en el teléfono (no se puede extraer) ----------
+const idb = () => new Promise((ok, mal) => { const r = indexedDB.open("panel", 1); r.onupgradeneeded = () => r.result.createObjectStore("k"); r.onsuccess = () => ok(r.result); r.onerror = mal; });
+async function kv(acc, k, v) { const db = await idb(); return new Promise((ok, mal) => { const t = db.transaction("k", acc === "get" ? "readonly" : "readwrite").objectStore("k");
+  const r = acc === "get" ? t.get(k) : acc === "del" ? t.delete(k) : t.put(v, k); r.onsuccess = () => ok(r.result); r.onerror = mal; }); }
+
+async function derivar(frase, sal, vueltas) {
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(frase), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({ name: "PBKDF2", salt: sal, iterations: vueltas, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+async function abrir(sobre, clave) {
+  const pl = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64.a(sobre.iv) }, clave, b64.a(sobre.datos));
+  const txt = await new Response(new Blob([pl]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+  return JSON.parse(txt);
+}
+async function cerrar(obj, clave, sal) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const comp = new Uint8Array(await new Response(new Blob([JSON.stringify(obj)]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer());
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, clave, comp));
+  return JSON.stringify({ v: 1, sal: b64.de(sal), iv: b64.de(iv), vueltas: 600000, datos: b64.de(ct) });
+}
+
+// ---------- traer los datos (de la página publicada o, con permiso, directo de GitHub para tenerlos al día) ----------
+async function traerSobre() {
+  const t = localStorage.getItem("gh");
+  if (t) {
+    try { const { repo, token } = JSON.parse(await descifrarLocal(t));
+      const r = await fetch(`https://api.github.com/repos/${repo}/contents/data/datos.enc?t=${Date.now()}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github.raw" }, cache: "no-store" });
+      if (r.ok) return await r.json(); } catch (e) {}
+  }
+  const r = await fetch(`data/datos.enc?t=${Date.now()}`, { cache: "no-store" });
+  if (!r.ok) throw new Error("Todavía no hay datos publicados.");
+  return r.json();
+}
+async function descifrarLocal(s) { const o = JSON.parse(s); return new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64.a(o.iv) }, CLAVE, b64.a(o.d))); }
+async function cifrarLocal(txt) { const iv = crypto.getRandomValues(new Uint8Array(12)); return JSON.stringify({ iv: b64.de(iv), d: b64.de(new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, CLAVE, new TextEncoder().encode(txt)))) }); }
+
+async function iniciar() {
+  const guardada = await kv("get", "clave").catch(() => null);
+  if (guardada) {
+    try { CLAVE = guardada; const s = await traerSobre(); SAL = b64.a(s.sal); D = await abrir(s, CLAVE); await despues(); return; }
+    catch (e) { CLAVE = null; }
+  }
+  pantallaClave();
+}
+function pantallaClave(msg = "") {
+  document.getElementById("app").innerHTML = `<div class="centro"><h1>Panel contable</h1><p class="s">Escribe tu contraseña para abrir la información.</p>
+    <input type="password" id="frase" autocomplete="current-password" placeholder="Contraseña"><div class="err" id="err">${esc(msg)}</div>
+    <button class="btn" id="entrar">Abrir</button><p class="s" style="margin-top:14px">Los datos viajan cifrados: sin la contraseña no se pueden leer.</p></div>`;
+  const go = async () => {
+    const f = document.getElementById("frase").value; if (!f) return;
+    document.getElementById("err").textContent = "Abriendo…";
+    try { const s = await traerSobre(); SAL = b64.a(s.sal); CLAVE = await derivar(f, SAL, s.vueltas); D = await abrir(s, CLAVE);
+      await kv("put", "clave", CLAVE); await despues(); }
+    catch (e) { CLAVE = null; document.getElementById("err").textContent = e.message && e.message.includes("datos") ? e.message : "Contraseña incorrecta."; }
+  };
+  document.getElementById("entrar").onclick = go; document.getElementById("frase").onkeydown = e => { if (e.key === "Enter") go(); };
+}
+async function despues() {
+  if (D.token) { localStorage.setItem("gh", await cifrarLocal(JSON.stringify({ repo: D.repo, token: D.token }))); delete D.token; }
+  periodo = periodo || D.periodos[1];
+  aplicarPendientes(); dibujar();
+}
+
+// ---------- marcas hechas en el celular ----------
+function pendientes() { try { return JSON.parse(localStorage.getItem("pend") || "[]"); } catch (e) { return []; } }
+function aplicarPendientes() {
+  const gen = D.generado;
+  const p = pendientes().filter(m => m.ts > gen || true);
+  p.forEach(m => { (D.control[m.periodo] ??= {})[m.cid] ??= { f29: "", previred: "", honorario: "" }; D.control[m.periodo][m.cid][m.campo] = m.valor; });
+}
+async function marcar(cid, campo, valor) {
+  const m = { id: crypto.randomUUID(), cid, periodo, campo, valor, ts: new Date().toISOString() };
+  const p = pendientes(); p.push(m); localStorage.setItem("pend", JSON.stringify(p));
+  (D.control[periodo] ??= {})[cid] ??= { f29: "", previred: "", honorario: "" }; D.control[periodo][cid][campo] = valor;
+  enviarMarcas();
+}
+async function enviarMarcas() {
+  const p = pendientes(); if (!p.length) return;
+  const t = localStorage.getItem("gh"); if (!t) return;
+  try {
+    const { repo, token } = JSON.parse(await descifrarLocal(t));
+    const url = `https://api.github.com/repos/${repo}/contents/data/marcas.enc`;
+    const h = { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" };
+    for (let intento = 0; intento < 3; intento++) {
+      const r = await fetch(url + `?t=${Date.now()}`, { headers: h, cache: "no-store" });
+      let lista = [], sha;
+      if (r.ok) { const j = await r.json(); sha = j.sha; try { lista = await abrir(JSON.parse(atob(j.content.replace(/\n/g, ""))), CLAVE); } catch (e) { lista = []; } }
+      const ids = new Set(lista.map(x => x.id)); p.forEach(x => { if (!ids.has(x.id)) lista.push(x); });
+      const cuerpo = { message: "Marcas desde el celular", content: btoa(await cerrar(lista, CLAVE, SAL)) }; if (sha) cuerpo.sha = sha;
+      const w = await fetch(url, { method: "PUT", headers: { ...h, "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
+      if (w.ok) { localStorage.setItem("enviadas", JSON.stringify([...JSON.parse(localStorage.getItem("enviadas") || "[]"), ...p.map(x => x.id)].slice(-500)));
+        localStorage.setItem("pend", JSON.stringify(pendientes().filter(x => !p.some(y => y.id === x.id)))); estadoSync(); return; }
+      if (w.status !== 409 && w.status !== 422) break;
+    }
+  } catch (e) {}
+  estadoSync();
+}
+function estadoSync() { const el = document.getElementById("sync"); if (el) el.textContent = pendientes().length ? `⏳ ${pendientes().length} marca(s) sin enviar (sin conexión): se enviarán solas.` : ""; }
+
+// ---------- pantallas ----------
+const ICON = { inicio: '<path d="M3 11l9-8 9 8v10H5V11"/>', mes: '<path d="M4 6h16M4 12h16M4 18h10"/>', f29: '<path d="M6 3h9l4 4v14H6zM9 12h7M9 16h7"/>',
+  libros: '<path d="M7 7h13l-3-3M17 17H4l3 3"/>', mas: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>' };
+function dibujar() {
+  const nombres = { inicio: "Inicio", mes: "Control del mes", f29: "F29", libros: "Compras y ventas", mas: "Más" };
+  document.getElementById("app").innerHTML = `<header><h1>${nombres[vista]}</h1><small>al ${esc(D.generado.replace("T", " "))}</small></header>
+    <main id="m"></main><nav>${Object.keys(nombres).map(k => `<button data-v="${k}" class="${k === vista ? "activo" : ""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>${nombres[k].split(" ")[0]}</button>`).join("")}</nav>`;
+  document.querySelectorAll("nav button").forEach(b => b.onclick = () => { vista = b.dataset.v; dibujar(); window.scrollTo(0, 0); });
+  ({ inicio: vInicio, mes: vMes, f29: vF29, libros: vLibros, mas: vMas })[vista](document.getElementById("m"));
+}
+const nomCli = id => (D.clientes.find(c => c.id == id) || {}).nombre || "";
+const selCli = (lista) => `<select id="cli">${lista.map(c => `<option value="${c.id}" ${c.id == cliSel ? "selected" : ""}>${esc(c.nombre)}</option>`).join("")}</select>`;
+const LISTO = { f29: ["sin movimiento", "declarado", "pagado"], previred: ["pagado", "no aplica"], honorario: ["pagado", "no cobrar"] };
+
+function vInicio(m) {
+  const p = D.periodos[1], c = D.control[p] || {};
+  const cuenta = campo => D.clientes.filter(x => (campo !== "previred" || x.tiene_trabajadores) && !LISTO[campo].includes((c[x.id] || {})[campo])).length;
+  m.innerHTML = `<div class="kpis"><div class="kpi"><b>${cuenta("f29")}</b><span>F29 pendientes<br>${MES[+p.slice(4) - 1]}</span></div>
+      <div class="kpi"><b>${cuenta("previred")}</b><span>Previred<br>pendientes</span></div><div class="kpi"><b>${cuenta("honorario")}</b><span>Honorarios<br>por cobrar</span></div></div>
+    <div class="panel"><h2>Diferencias y avisos</h2>${D.alertas.length ? D.alertas.map(a => `<div class="alerta">${esc(a.texto)}</div>`).join("") : '<p class="s">Todo en orden.</p>'}</div>
+    <div class="panel"><h2>Próximos vencimientos</h2>${D.vencimientos.slice(0, 10).map(v => `<div class="fila"><span>${esc(v.titulo)}</span><span class="s n">${v.fecha.slice(8)}-${v.fecha.slice(5, 7)}</span></div>`).join("") || '<p class="s">Sin vencimientos.</p>'}</div>
+    <div class="panel"><button class="btn sec" id="act">Actualizar datos</button><p class="s" style="margin:8px 0 0">Los datos se actualizan cuando el PC sincroniza (viernes, día 22 o con el botón "Enviar al celular").</p>
+      <button class="btn sec" id="salir" style="margin-top:10px">Cerrar sesión en este teléfono</button></div>`;
+  document.getElementById("act").onclick = async () => { try { const s = await traerSobre(); D = await abrir(s, CLAVE); await despues(); } catch (e) { alert("No se pudo actualizar: " + e.message); } };
+  document.getElementById("salir").onclick = async () => { await kv("del", "clave"); localStorage.removeItem("gh"); location.reload(); };
+}
+function vMes(m) {
+  const c = D.control[periodo] || {};
+  const sel = (cid, campo, v) => `<select data-c="${cid}" data-f="${campo}" class="${!v ? "" : LISTO[campo].includes(v) ? "ok" : "pend"}">${D.opciones[campo].map(o => `<option value="${o}" ${o === v ? "selected" : ""}>${o ? o[0].toUpperCase() + o.slice(1) : "—"}</option>`).join("")}</select>`;
+  m.innerHTML = `<div class="barra"><select id="per">${D.periodos.map(p => `<option value="${p}" ${p === periodo ? "selected" : ""}>${mesN(p)}</option>`).join("")}</select>
+      <input id="bus" placeholder="Buscar cliente"></div><div id="sync" class="pendiente-sync"></div>
+    ${D.clientes.map(x => { const e = c[x.id] || {}; return `<div class="cli" data-n="${esc(x.nombre.toLowerCase())}"><div class="nom">${esc(x.nombre)}</div><div class="est">
+      <label>F29${sel(x.id, "f29", e.f29 || "")}</label><label>Previred${x.tiene_trabajadores ? sel(x.id, "previred", e.previred || "") : '<span class="s" style="padding:8px 0">—</span>'}</label>
+      <label>Honorario${sel(x.id, "honorario", e.honorario || "")}</label></div></div>`; }).join("")}`;
+  estadoSync();
+  document.getElementById("per").onchange = e => { periodo = e.target.value; vMes(m); };
+  document.getElementById("bus").oninput = e => { const q = e.target.value.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+    m.querySelectorAll(".cli").forEach(d => d.style.display = d.dataset.n.normalize("NFD").replace(/[̀-ͯ]/g, "").includes(q) ? "" : "none"); };
+  m.querySelectorAll("select[data-c]").forEach(s => s.onchange = () => { marcar(+s.dataset.c, s.dataset.f, s.value);
+    s.className = !s.value ? "" : LISTO[s.dataset.f].includes(s.value) ? "ok" : "pend"; });
+}
+function vF29(m) {
+  const lista = D.clientes.filter(c => (D.f29[c.id] || []).length);
+  if (!lista.some(c => c.id == cliSel)) cliSel = lista[0]?.id;
+  const f = (D.f29[cliSel] || []);
+  m.innerHTML = `<div class="barra">${selCli(lista)}</div>${f.map(x => { const d = x.dif || {};
+    const ok = (a, b) => b === null || b === undefined ? "" : Math.abs(a - b) <= 5 ? '<span class="chip ok">✔ cuadra</span>' : `<span class="chip mal">dif. ${$p(a - b)}</span>`;
+    return `<div class="panel"><h2>${mesN(x.p)}</h2><div class="fila"><span>Total pagado (cód. 91)</span><b class="n">${$p(x.t91)}</b></div>
+      <div class="fila"><span>IVA débito (538)</span><span class="n">${$p(x.c["538"] ?? 0)} ${ok(d.debito_f29, d.debito_libros)}</span></div>
+      <div class="fila"><span>IVA crédito del mes</span><span class="n">${$p(d.credito_f29)} ${ok(d.credito_f29, d.credito_libros)}</span></div>
+      <div class="fila"><span>Remanente (077)</span><span class="n">${$p(x.c["077"] ?? 0)}</span></div>
+      <div class="fila"><span>PPM (062)</span><span class="n">${$p(x.c["062"] ?? 0)}</span></div>
+      <div class="fila s"><span>Folio ${esc(x.folio || "")}</span><span>${esc(x.fecha || "")}</span></div></div>`; }).join("") || '<p class="s">Sin F29.</p>'}`;
+  document.getElementById("cli").onchange = e => { cliSel = +e.target.value; vF29(m); };
+}
+function vLibros(m) {
+  const lista = D.clientes.filter(c => (D.libros[c.id] || []).length);
+  if (!lista.some(c => c.id == cliSel)) cliSel = lista[0]?.id;
+  const l = D.libros[cliSel] || [];
+  const t = k => l.reduce((s, x) => s + (x[k] || 0), 0);
+  m.innerHTML = `<div class="barra">${selCli(lista)}</div><div class="panel desliza"><table><thead><tr><th>Mes</th><th class="n">Ventas netas</th><th class="n">IVA déb.</th><th class="n">Compras</th><th class="n">IVA créd.</th><th class="n">IVA</th></tr></thead><tbody>
+    ${l.map(x => `<tr><td>${MES[+x.p.slice(4) - 1].slice(0, 3)}</td><td class="n">${nf.format(x.vn + x.ve)}</td><td class="n">${nf.format(x.deb)}</td><td class="n">${nf.format(x.cn + x.ce)}</td><td class="n">${nf.format(x.cre)}</td><td class="n">${nf.format(x.deb - x.cre)}</td></tr>`).join("")}
+    <tr><th>Total</th><th class="n">${nf.format(t("vn") + t("ve"))}</th><th class="n">${nf.format(t("deb"))}</th><th class="n">${nf.format(t("cn") + t("ce"))}</th><th class="n">${nf.format(t("cre"))}</th><th class="n">${nf.format(t("deb") - t("cre"))}</th></tr></tbody></table></div>
+    <p class="s">IVA: positivo = a pagar, negativo = crédito (sin el remanente del mes anterior).</p>`;
+  document.getElementById("cli").onchange = e => { cliSel = +e.target.value; vLibros(m); };
+}
+function vMas(m) {
+  const ren = D.renta.filter(r => !r.incompleto).sort((a, b) => b.resultado - a.resultado);
+  m.innerHTML = `<div class="panel"><h2>Renta estimada ${D.anio + 1}</h2>${ren.map(r => `<div class="fila"><span>${esc(nomCli(r.id))}</span><b class="n" style="color:${r.resultado > 0 ? "var(--rojo)" : "var(--ok)"}">${$p(r.resultado)}</b></div>`).join("") || '<p class="s">Sin datos.</p>'}
+      <p class="s" style="margin:6px 0 0">Positivo = a pagar; negativo = devolución.</p></div>
+    <div class="panel"><h2>Honorarios ${D.anio}</h2>${Object.entries(D.honorarios).map(([cid, l]) => { const r = l.reduce((s, x) => s + x.r, 0), b = l.reduce((s, x) => s + x.b, 0);
+      const mal = l.filter(x => x.f151 !== null && Math.abs(x.r - x.f151) > 5); return `<div class="fila"><span>${esc(nomCli(cid))}<br><span class="s">${l.reduce((s, x) => s + x.n, 0)} boletas · bruto ${$p(b)}</span></span><span class="n">${$p(r)}<br>${mal.length ? `<span class="chip mal">${mal.length} mes(es) no calza(n)</span>` : '<span class="chip ok">✔</span>'}</span></div>`; }).join("") || '<p class="s">Sin boletas.</p>'}</div>
+    <div class="panel"><h2>Vencimientos</h2>${D.vencimientos.map(v => `<div class="fila"><span>${esc(v.titulo)}</span><span class="s n">${v.fecha.slice(8)}-${v.fecha.slice(5, 7)}</span></div>`).join("")}</div>`;
+}
+window.addEventListener("online", enviarMarcas);
+iniciar();
+</script>
+</body>
+</html>
