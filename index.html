@@ -113,15 +113,31 @@ function pantallaClave(msg = "") {
 async function despues() {
   if (D.token) { localStorage.setItem("gh", await cifrarLocal(JSON.stringify({ repo: D.repo, token: D.token }))); delete D.token; }
   periodo = periodo || D.periodos[1];
+  await leerMarcasRemotas();
   aplicarPendientes(); dibujar();
+  enviarMarcas();
 }
 
 // ---------- marcas hechas en el celular ----------
 function pendientes() { try { return JSON.parse(localStorage.getItem("pend") || "[]"); } catch (e) { return []; } }
+// Marcas hechas después de la última subida del PC: las que están en GitHub (también de otros días) y las que
+// todavía no se envían. Se aplican en orden de hora, así la última marca es la que vale.
+let REMOTAS = [];
+async function leerMarcasRemotas() {
+  const t = localStorage.getItem("gh"); if (!t) return;
+  try {
+    const { repo, token } = JSON.parse(await descifrarLocal(t));
+    const r = await fetch(`https://api.github.com/repos/${repo}/contents/data/marcas.enc?t=${Date.now()}`,
+      { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github.raw" }, cache: "no-store" });
+    if (r.ok) REMOTAS = await abrir(await r.json(), CLAVE);
+  } catch (e) {}
+}
 function aplicarPendientes() {
-  const gen = D.generado;
-  const p = pendientes().filter(m => m.ts > gen || true);
-  p.forEach(m => { (D.control[m.periodo] ??= {})[m.cid] ??= { f29: "", previred: "", honorario: "" }; D.control[m.periodo][m.cid][m.campo] = m.valor; });
+  const desde = D.generado_utc || "";
+  const vistas = new Set(), todas = [];
+  [...REMOTAS, ...pendientes()].forEach(m => { if (!vistas.has(m.id)) { vistas.add(m.id); todas.push(m); } });
+  todas.filter(m => m.ts > desde).sort((a, b) => a.ts < b.ts ? -1 : 1).forEach(m => {
+    (D.control[m.periodo] ??= {})[m.cid] ??= { f29: "", previred: "", honorario: "" }; D.control[m.periodo][m.cid][m.campo] = m.valor; });
 }
 async function marcar(cid, campo, valor) {
   const m = { id: crypto.randomUUID(), cid, periodo, campo, valor, ts: new Date().toISOString() };
@@ -143,7 +159,7 @@ async function enviarMarcas() {
       const ids = new Set(lista.map(x => x.id)); p.forEach(x => { if (!ids.has(x.id)) lista.push(x); });
       const cuerpo = { message: "Marcas desde el celular", content: btoa(await cerrar(lista, CLAVE, SAL)) }; if (sha) cuerpo.sha = sha;
       const w = await fetch(url, { method: "PUT", headers: { ...h, "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
-      if (w.ok) { localStorage.setItem("enviadas", JSON.stringify([...JSON.parse(localStorage.getItem("enviadas") || "[]"), ...p.map(x => x.id)].slice(-500)));
+      if (w.ok) { REMOTAS = lista;
         localStorage.setItem("pend", JSON.stringify(pendientes().filter(x => !p.some(y => y.id === x.id)))); estadoSync(); return; }
       if (w.status !== 409 && w.status !== 422) break;
     }
