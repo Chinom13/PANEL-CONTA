@@ -4,20 +4,36 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#123A47">
+<meta name="theme-color" content="#1F6F86">
 <title>Panel</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icono.svg" type="image/svg+xml">
+<script>try { const t = localStorage.getItem("tema"); if (t === "claro" || t === "oscuro") document.documentElement.dataset.tema = t; } catch (e) {}</script>
 <style>
-:root{--fondo:#F4F6F7;--panel:#fff;--tinta:#16242A;--suave:#5E6E74;--linea:#E1E7E9;--marca:#1F6F86;--ok:#1E8A55;--aviso:#B7791F;--rojo:#C0392B;--chip:#EEF3F4}
-@media (prefers-color-scheme:dark){:root{--fondo:#0F1719;--panel:#172227;--tinta:#E7EEF0;--suave:#93A5AB;--linea:#26363C;--marca:#5FB3C9;--ok:#4CC38A;--aviso:#E0A84A;--rojo:#F07167;--chip:#1E2C31}}
-*{box-sizing:border-box}html,body{margin:0;background:var(--fondo);color:var(--tinta);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-header{position:sticky;top:0;z-index:5;background:var(--marca);color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;display:flex;align-items:center;gap:10px}
-header h1{font-size:17px;margin:0;flex:1}header small{opacity:.85;font-size:12px}
-main{padding:12px 12px calc(84px + env(safe-area-inset-bottom))}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--panel);border-top:1px solid var(--linea);padding-bottom:env(safe-area-inset-bottom);z-index:5}
-nav button{flex:1;border:0;background:none;color:var(--suave);padding:9px 2px 8px;font-size:11.5px;display:flex;flex-direction:column;align-items:center;gap:3px}
-nav button svg{width:22px;height:22px}nav button.activo{color:var(--marca);font-weight:600}
+:root{--fondo:#F4F6F7;--panel:#fff;--tinta:#16242A;--suave:#5E6E74;--linea:#E1E7E9;--marca:#1F6F86;--ok:#1E8A55;--aviso:#B7791F;--rojo:#C0392B;--chip:#EEF3F4;--s1:#1F6F86;--s2:#D9822B;--s3:#2E9E6B;--sombra:0 10px 30px rgba(0,0,0,.18)}
+:root[data-tema="oscuro"]{--fondo:#0F1719;--panel:#172227;--tinta:#E7EEF0;--suave:#93A5AB;--linea:#26363C;--marca:#5FB3C9;--ok:#4CC38A;--aviso:#E0A84A;--rojo:#F07167;--chip:#1E2C31;--s1:#5FB3C9;--s2:#E89A4B;--s3:#4CC38A}
+@media (prefers-color-scheme:dark){:root:not([data-tema="claro"]){--fondo:#0F1719;--panel:#172227;--tinta:#E7EEF0;--suave:#93A5AB;--linea:#26363C;--marca:#5FB3C9;--ok:#4CC38A;--aviso:#E0A84A;--rojo:#F07167;--chip:#1E2C31;--s1:#5FB3C9;--s2:#E89A4B;--s3:#4CC38A}}
+*{box-sizing:border-box}html,body{margin:0;background:var(--fondo);color:var(--tinta);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+header{position:sticky;top:0;z-index:6;background:var(--marca);color:#fff;padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;display:flex;align-items:center;gap:10px}
+header h1{font-size:17px;margin:0;flex:1}header small{opacity:.85;font-size:11.5px;text-align:right}
+.hamb{border:0;background:rgba(255,255,255,.15);color:#fff;width:40px;height:40px;border-radius:10px;display:grid;place-items:center}
+main{padding:12px 12px calc(24px + env(safe-area-inset-bottom))}
+/* menú vertical */
+.velo{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9;opacity:0;pointer-events:none;transition:opacity .2s}
+.velo.ver{opacity:1;pointer-events:auto}
+aside{position:fixed;top:0;bottom:0;left:0;width:78%;max-width:300px;background:var(--panel);z-index:10;transform:translateX(-102%);transition:transform .22s ease;
+  display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 14px) 10px calc(env(safe-area-inset-bottom) + 10px);box-shadow:var(--sombra)}
+aside.ver{transform:none}
+aside .marca{display:flex;align-items:center;gap:10px;padding:4px 8px 14px;border-bottom:1px solid var(--linea);margin-bottom:8px}
+aside .marca img{width:36px;height:36px}aside .marca b{display:block}aside .marca small{color:var(--suave);font-size:12px}
+aside nav{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+aside nav button{border:0;background:none;color:var(--tinta);display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:10px;font:15px system-ui;text-align:left}
+aside nav button svg{width:21px;height:21px;color:var(--suave)}
+aside nav button.activo{background:var(--chip);color:var(--marca);font-weight:600}aside nav button.activo svg{color:var(--marca)}
+.tema{display:flex;gap:4px;background:var(--chip);border-radius:12px;padding:4px;margin-top:8px}
+.tema button{flex:1;border:0;background:none;color:var(--suave);padding:8px;border-radius:9px;font:13px system-ui}.tema button.activo{background:var(--panel);color:var(--tinta);font-weight:600}
+aside .pie{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+/* contenido */
 .panel{background:var(--panel);border:1px solid var(--linea);border-radius:14px;padding:12px 14px;margin-bottom:12px}
 .panel h2{font-size:15px;margin:0 0 8px}
 .fila{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--linea)}.fila:last-child{border:0}
@@ -30,15 +46,31 @@ select,input{font:inherit;color:var(--tinta);background:var(--fondo);border:1px 
 .cli .nom{font-weight:600;margin-bottom:8px}.est{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .est label{font-size:11px;color:var(--suave);display:flex;flex-direction:column;gap:3px}.est select{padding:7px 6px;font-size:13px}
 .ok{border-color:color-mix(in srgb,var(--ok) 55%,transparent)!important;color:var(--ok)}.pend{border-color:color-mix(in srgb,var(--aviso) 60%,transparent)!important;color:var(--aviso)}
-.alerta{border-left:4px solid var(--aviso);padding:8px 10px;background:var(--panel);border-radius:10px;margin-bottom:8px;font-size:13.5px}
-.chip{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--chip);font-size:12px}
-.chip.ok{color:var(--ok)}.chip.mal{color:var(--rojo)}
-table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:6px 4px;border-bottom:1px solid var(--linea);text-align:left}th{color:var(--suave);font-weight:600;font-size:12px}
+.alerta{border-left:4px solid var(--aviso);padding:8px 10px;background:var(--fondo);border-radius:10px;margin-bottom:8px;font-size:13.5px}
+.chip{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--chip);font-size:12px}.chip.ok{color:var(--ok)}.chip.mal{color:var(--rojo)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:7px 4px;border-bottom:1px solid var(--linea);text-align:left}th{color:var(--suave);font-weight:600;font-size:12px}
+tr.clic td{cursor:pointer}tr.clic td:first-child{color:var(--marca);font-weight:600}
 .desliza{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.graf{width:100%;height:230px}
 .centro{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px}
 .centro h1{font-size:22px;margin:0 0 6px}.btn{border:0;border-radius:12px;background:var(--marca);color:#fff;padding:12px;font:600 15px system-ui;width:100%}
 .btn.sec{background:var(--chip);color:var(--tinta)}.err{color:var(--rojo);font-size:13.5px;min-height:20px;margin:8px 0}
 .pendiente-sync{font-size:12px;color:var(--aviso);margin:-4px 0 10px}
+/* calendario */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.cal .dn{font-size:11px;color:var(--suave);padding:4px 0}
+.cal button{border:0;background:var(--fondo);color:var(--tinta);border-radius:9px;aspect-ratio:1;font:13px system-ui;position:relative;padding:0}
+.cal button.otro{opacity:.35}.cal button.hoy{outline:2px solid var(--marca)}.cal button.sel{background:var(--marca);color:#fff}
+.cal button i{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);display:flex;gap:2px}
+.cal button i b{width:5px;height:5px;border-radius:50%;background:var(--aviso)}.cal button i b.f29{background:var(--s1)}.cal button i b.previred{background:var(--s3)}.cal button i b.propio{background:var(--s2)}
+/* hoja de detalle */
+.hoja{position:fixed;left:0;right:0;bottom:0;max-height:88vh;background:var(--panel);z-index:12;border-radius:18px 18px 0 0;transform:translateY(102%);transition:transform .22s;
+  display:flex;flex-direction:column;box-shadow:var(--sombra);padding-bottom:env(safe-area-inset-bottom)}
+.hoja.ver{transform:none}.hoja .cab{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--linea)}.hoja .cab h2{flex:1;margin:0;font-size:16px}
+.hoja .cuerpo{overflow-y:auto;padding:8px 14px 16px}
+.seg{display:flex;background:var(--chip);border-radius:10px;padding:3px;margin-bottom:10px}.seg button{flex:1;border:0;background:none;color:var(--suave);padding:7px;border-radius:8px;font:13px system-ui}.seg button.activo{background:var(--panel);color:var(--tinta);font-weight:600}
+.doc{padding:8px 0;border-bottom:1px solid var(--linea);font-size:13px}.doc .l1{display:flex;justify-content:space-between;gap:8px}.doc .l2{display:flex;justify-content:space-between;gap:8px;color:var(--suave);font-size:12px;margin-top:2px}
+.neg{color:var(--rojo)}
 </style>
 </head>
 <body>
@@ -50,22 +82,23 @@ const $p = v => v === null || v === undefined ? "–" : (v < 0 ? "−$" : "$") +
 const MES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const mesN = p => `${MES[+p.slice(4) - 1]} ${p.slice(0, 4)}`;
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const b64 = { a: s => Uint8Array.from(atob(s), c => c.charCodeAt(0)), de: u => btoa(String.fromCharCode(...u)) };
-let D = null, CLAVE = null, SAL = null, vista = "inicio", periodo = null, cliSel = null;
+const b64 = { a: s => Uint8Array.from(atob(s), c => c.charCodeAt(0)), de: u => { let s = ""; for (let i = 0; i < u.length; i += 8192) s += String.fromCharCode(...u.subarray(i, i + 8192)); return btoa(s); } };
+const TIPOS = {29:"Factura de inicio",30:"Factura",32:"Factura exenta",33:"Factura electrónica",34:"Factura exenta electrónica",35:"Boleta",38:"Boleta exenta",39:"Boletas electrónicas",
+  41:"Boletas exentas electrónicas",43:"Liquidación factura",45:"Factura de compra",46:"Factura de compra electrónica",48:"Comprobantes de pago electrónico",55:"Nota de débito",
+  56:"Nota de débito electrónica",60:"Nota de crédito",61:"Nota de crédito electrónica",101:"Factura de exportación",110:"Factura de exportación electrónica",112:"Nota de crédito de exportación",914:"Declaración de ingreso (DIN)"};
+let D = null, DOCS = null, CLAVE = null, SAL = null, vista = "inicio", periodo = null, cliSel = null, calMes = null, calDia = null;
 
-// ---------- guardar la clave derivada en el teléfono (no se puede extraer) ----------
+// ---------- claves y cifrado ----------
 const idb = () => new Promise((ok, mal) => { const r = indexedDB.open("panel", 1); r.onupgradeneeded = () => r.result.createObjectStore("k"); r.onsuccess = () => ok(r.result); r.onerror = mal; });
 async function kv(acc, k, v) { const db = await idb(); return new Promise((ok, mal) => { const t = db.transaction("k", acc === "get" ? "readonly" : "readwrite").objectStore("k");
   const r = acc === "get" ? t.get(k) : acc === "del" ? t.delete(k) : t.put(v, k); r.onsuccess = () => ok(r.result); r.onerror = mal; }); }
-
 async function derivar(frase, sal, vueltas) {
   const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(frase), "PBKDF2", false, ["deriveKey"]);
   return crypto.subtle.deriveKey({ name: "PBKDF2", salt: sal, iterations: vueltas, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
 }
 async function abrir(sobre, clave) {
   const pl = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64.a(sobre.iv) }, clave, b64.a(sobre.datos));
-  const txt = await new Response(new Blob([pl]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
-  return JSON.parse(txt);
+  return JSON.parse(await new Response(new Blob([pl]).stream().pipeThrough(new DecompressionStream("gzip"))).text());
 }
 async function cerrar(obj, clave, sal) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -73,26 +106,24 @@ async function cerrar(obj, clave, sal) {
   const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, clave, comp));
   return JSON.stringify({ v: 1, sal: b64.de(sal), iv: b64.de(iv), vueltas: 600000, datos: b64.de(ct) });
 }
+async function descifrarLocal(s) { const o = JSON.parse(s); return new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64.a(o.iv) }, CLAVE, b64.a(o.d))); }
+async function cifrarLocal(txt) { const iv = crypto.getRandomValues(new Uint8Array(12)); return JSON.stringify({ iv: b64.de(iv), d: b64.de(new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, CLAVE, new TextEncoder().encode(txt)))) }); }
+async function gh() { const t = localStorage.getItem("gh"); return t ? JSON.parse(await descifrarLocal(t)) : null; }
 
-// ---------- traer los datos (de la página publicada o, con permiso, directo de GitHub para tenerlos al día) ----------
-async function traerSobre() {
-  const t = localStorage.getItem("gh");
-  if (t) {
-    try { const { repo, token } = JSON.parse(await descifrarLocal(t));
-      const r = await fetch(`https://api.github.com/repos/${repo}/contents/data/datos.enc?t=${Date.now()}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github.raw" }, cache: "no-store" });
-      if (r.ok) return await r.json(); } catch (e) {}
-  }
-  const r = await fetch(`data/datos.enc?t=${Date.now()}`, { cache: "no-store" });
+// ---------- traer archivos (directo de GitHub si ya hay permiso: siempre al día) ----------
+async function traer(ruta) {
+  try { const g = CLAVE && await gh();
+    if (g) { const r = await fetch(`https://api.github.com/repos/${g.repo}/contents/${ruta}?t=${Date.now()}`, { headers: { Authorization: `Bearer ${g.token}`, Accept: "application/vnd.github.raw" }, cache: "no-store" });
+      if (r.ok) return await r.json(); } } catch (e) {}
+  const r = await fetch(`${ruta}?t=${Date.now()}`, { cache: "no-store" });
   if (!r.ok) throw new Error("Todavía no hay datos publicados.");
   return r.json();
 }
-async function descifrarLocal(s) { const o = JSON.parse(s); return new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64.a(o.iv) }, CLAVE, b64.a(o.d))); }
-async function cifrarLocal(txt) { const iv = crypto.getRandomValues(new Uint8Array(12)); return JSON.stringify({ iv: b64.de(iv), d: b64.de(new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, CLAVE, new TextEncoder().encode(txt)))) }); }
 
 async function iniciar() {
   const guardada = await kv("get", "clave").catch(() => null);
   if (guardada) {
-    try { CLAVE = guardada; const s = await traerSobre(); SAL = b64.a(s.sal); D = await abrir(s, CLAVE); await despues(); return; }
+    try { CLAVE = guardada; const s = await traer("data/datos.enc"); SAL = b64.a(s.sal); D = await abrir(s, CLAVE); await despues(); return; }
     catch (e) { CLAVE = null; }
   }
   pantallaClave();
@@ -104,7 +135,7 @@ function pantallaClave(msg = "") {
   const go = async () => {
     const f = document.getElementById("frase").value; if (!f) return;
     document.getElementById("err").textContent = "Abriendo…";
-    try { const s = await traerSobre(); SAL = b64.a(s.sal); CLAVE = await derivar(f, SAL, s.vueltas); D = await abrir(s, CLAVE);
+    try { const s = await traer("data/datos.enc"); SAL = b64.a(s.sal); CLAVE = await derivar(f, SAL, s.vueltas); D = await abrir(s, CLAVE);
       await kv("put", "clave", CLAVE); await despues(); }
     catch (e) { CLAVE = null; document.getElementById("err").textContent = e.message && e.message.includes("datos") ? e.message : "Contraseña incorrecta."; }
   };
@@ -114,53 +145,41 @@ async function despues() {
   if (D.token) { localStorage.setItem("gh", await cifrarLocal(JSON.stringify({ repo: D.repo, token: D.token }))); delete D.token; }
   periodo = periodo || D.periodos[1];
   await leerMarcasRemotas();
-  aplicarPendientes(); dibujar();
+  aplicarPendientes(); armar(); dibujar();
   enviarMarcas();
 }
+async function actualizar() { try { const s = await traer("data/datos.enc"); D = await abrir(s, CLAVE); DOCS = null; await despues(); } catch (e) { alert("No se pudo actualizar: " + e.message); } }
 
-// ---------- marcas hechas en el celular ----------
-function pendientes() { try { return JSON.parse(localStorage.getItem("pend") || "[]"); } catch (e) { return []; } }
-// Marcas hechas después de la última subida del PC: las que están en GitHub (también de otros días) y las que
-// todavía no se envían. Se aplican en orden de hora, así la última marca es la que vale.
+// ---------- marcas del celular ----------
 let REMOTAS = [];
-async function leerMarcasRemotas() {
-  const t = localStorage.getItem("gh"); if (!t) return;
-  try {
-    const { repo, token } = JSON.parse(await descifrarLocal(t));
-    const r = await fetch(`https://api.github.com/repos/${repo}/contents/data/marcas.enc?t=${Date.now()}`,
-      { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github.raw" }, cache: "no-store" });
-    if (r.ok) REMOTAS = await abrir(await r.json(), CLAVE);
-  } catch (e) {}
-}
+function pendientes() { try { return JSON.parse(localStorage.getItem("pend") || "[]"); } catch (e) { return []; } }
+async function leerMarcasRemotas() { try { REMOTAS = await abrir(await traer("data/marcas.enc"), CLAVE); } catch (e) {} }
 function aplicarPendientes() {
-  const desde = D.generado_utc || "";
-  const vistas = new Set(), todas = [];
+  const desde = D.generado_utc || "", vistas = new Set(), todas = [];
   [...REMOTAS, ...pendientes()].forEach(m => { if (!vistas.has(m.id)) { vistas.add(m.id); todas.push(m); } });
   todas.filter(m => m.ts > desde).sort((a, b) => a.ts < b.ts ? -1 : 1).forEach(m => {
     (D.control[m.periodo] ??= {})[m.cid] ??= { f29: "", previred: "", honorario: "" }; D.control[m.periodo][m.cid][m.campo] = m.valor; });
 }
-async function marcar(cid, campo, valor) {
+function marcar(cid, campo, valor) {
   const m = { id: crypto.randomUUID(), cid, periodo, campo, valor, ts: new Date().toISOString() };
   const p = pendientes(); p.push(m); localStorage.setItem("pend", JSON.stringify(p));
   (D.control[periodo] ??= {})[cid] ??= { f29: "", previred: "", honorario: "" }; D.control[periodo][cid][campo] = valor;
   enviarMarcas();
 }
 async function enviarMarcas() {
-  const p = pendientes(); if (!p.length) return;
-  const t = localStorage.getItem("gh"); if (!t) return;
+  const p = pendientes(); if (!p.length) return estadoSync();
   try {
-    const { repo, token } = JSON.parse(await descifrarLocal(t));
-    const url = `https://api.github.com/repos/${repo}/contents/data/marcas.enc`;
-    const h = { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" };
-    for (let intento = 0; intento < 3; intento++) {
+    const g = await gh(); if (!g) return;
+    const url = `https://api.github.com/repos/${g.repo}/contents/data/marcas.enc`;
+    const h = { Authorization: `Bearer ${g.token}`, Accept: "application/vnd.github+json" };
+    for (let i = 0; i < 3; i++) {
       const r = await fetch(url + `?t=${Date.now()}`, { headers: h, cache: "no-store" });
       let lista = [], sha;
       if (r.ok) { const j = await r.json(); sha = j.sha; try { lista = await abrir(JSON.parse(atob(j.content.replace(/\n/g, ""))), CLAVE); } catch (e) { lista = []; } }
       const ids = new Set(lista.map(x => x.id)); p.forEach(x => { if (!ids.has(x.id)) lista.push(x); });
       const cuerpo = { message: "Marcas desde el celular", content: btoa(await cerrar(lista, CLAVE, SAL)) }; if (sha) cuerpo.sha = sha;
       const w = await fetch(url, { method: "PUT", headers: { ...h, "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
-      if (w.ok) { REMOTAS = lista;
-        localStorage.setItem("pend", JSON.stringify(pendientes().filter(x => !p.some(y => y.id === x.id)))); estadoSync(); return; }
+      if (w.ok) { REMOTAS = lista; localStorage.setItem("pend", JSON.stringify(pendientes().filter(x => !p.some(y => y.id === x.id)))); break; }
       if (w.status !== 409 && w.status !== 422) break;
     }
   } catch (e) {}
@@ -168,31 +187,85 @@ async function enviarMarcas() {
 }
 function estadoSync() { const el = document.getElementById("sync"); if (el) el.textContent = pendientes().length ? `⏳ ${pendientes().length} marca(s) sin enviar (sin conexión): se enviarán solas.` : ""; }
 
-// ---------- pantallas ----------
-const ICON = { inicio: '<path d="M3 11l9-8 9 8v10H5V11"/>', mes: '<path d="M4 6h16M4 12h16M4 18h10"/>', f29: '<path d="M6 3h9l4 4v14H6zM9 12h7M9 16h7"/>',
-  libros: '<path d="M7 7h13l-3-3M17 17H4l3 3"/>', mas: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>' };
+// ---------- gráficos (ECharts, el mismo de la app del PC) ----------
+let ECH = null;
+function cargarEcharts() { return ECH || (ECH = new Promise(ok => { const s = document.createElement("script"); s.src = "vendor/echarts.min.js"; s.onload = () => ok(true); s.onerror = () => ok(false); document.head.appendChild(s); })); }
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const corto = v => { const a = Math.abs(v); return (v < 0 ? "−" : "") + (a >= 1e6 ? (a / 1e6).toFixed(1).replace(".", ",") + " M" : a >= 1e3 ? Math.round(a / 1e3) + " mil" : nf.format(a)); };
+async function barras(el, cats, series, opc = {}) {
+  if (!el || !(await cargarEcharts()) || !window.echarts) return;
+  const ch = echarts.getInstanceByDom(el) || echarts.init(el, null, { renderer: "svg" });
+  ch.setOption({ animationDuration: 600, grid: { left: 4, right: 8, top: series.length > 1 ? 30 : 10, bottom: 4, containLabel: true },
+    legend: series.length > 1 ? { top: 0, left: 0, itemWidth: 10, itemHeight: 10, textStyle: { color: css("--suave"), fontSize: 11 } } : undefined,
+    tooltip: { trigger: "axis", confine: true, backgroundColor: css("--panel"), borderColor: css("--linea"), textStyle: { color: css("--tinta"), fontSize: 12 }, valueFormatter: v => $p(v) },
+    xAxis: { type: "category", data: cats, axisTick: { show: false }, axisLine: { lineStyle: { color: css("--linea") } }, axisLabel: { color: css("--suave"), fontSize: 10 } },
+    yAxis: { type: "value", splitNumber: 3, axisLabel: { color: css("--suave"), fontSize: 10, formatter: corto }, splitLine: { lineStyle: { color: css("--linea") } } },
+    series: series.map(s => ({ name: s.nombre, type: s.linea ? "line" : "bar", stack: opc.apilado ? "t" : undefined, data: s.valores, smooth: true, barMaxWidth: 16,
+      itemStyle: { color: css(s.color), borderRadius: opc.apilado ? 0 : [4, 4, 0, 0] }, lineStyle: { color: css(s.color), width: 2.5 }, symbol: "circle", symbolSize: 6 })) }, true);
+  new ResizeObserver(() => ch.resize()).observe(el);
+}
+
+// ---------- menú vertical y apariencia ----------
+const SECC = [
+  ["inicio", "Inicio", '<path d="M3 11l9-8 9 8v10H5V11"/>'],
+  ["mes", "Control del mes", '<path d="M4 6h16M4 12h16M4 18h10"/>'],
+  ["f29", "F29", '<path d="M6 3h9l4 4v14H6zM9 12h7M9 16h7"/>'],
+  ["libros", "Compras y ventas", '<path d="M7 7h13l-3-3M17 17H4l3 3"/>'],
+  ["honorarios", "Honorarios", '<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2zM9 8h6M9 12h6"/>'],
+  ["renta", "Renta estimada", '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 19h0"/>'],
+  ["calendario", "Vencimientos", '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'],
+];
+function armar() {
+  document.getElementById("app").innerHTML = `<header><button class="hamb" id="hamb" aria-label="Menú"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <h1 id="titulo"></h1><small>datos al<br>${esc(D.generado.slice(8, 10) + "-" + D.generado.slice(5, 7) + " " + D.generado.slice(11, 16))}</small></header>
+    <div class="velo" id="velo"></div>
+    <aside id="menu"><div class="marca"><img src="icono.svg" alt=""><div><b>Contabilidad</b><small>Panel del celular</small></div></div>
+      <nav>${SECC.map(([k, t, i]) => `<button data-v="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${i}</svg>${t}</button>`).join("")}</nav>
+      <div class="pie"><div class="tema">${[["claro", "☀ Claro"], ["auto", "Auto"], ["oscuro", "☾ Oscuro"]].map(([k, t]) => `<button data-t="${k}">${t}</button>`).join("")}</div>
+        <button class="btn sec" id="act">Actualizar datos</button><button class="btn sec" id="salir">Cerrar sesión</button></div></aside>
+    <main id="m"></main>
+    <div class="hoja" id="hoja"><div class="cab"><h2 id="h-tit"></h2><button class="hamb" id="h-cerrar" style="background:var(--chip);color:var(--tinta)">✕</button></div><div class="cuerpo" id="h-cuerpo"></div></div>`;
+  const abrirMenu = si => { document.getElementById("menu").classList.toggle("ver", si); document.getElementById("velo").classList.toggle("ver", si); };
+  document.getElementById("hamb").onclick = () => abrirMenu(true);
+  document.getElementById("velo").onclick = () => { abrirMenu(false); cerrarHoja(); };
+  document.querySelectorAll("aside nav button").forEach(b => b.onclick = () => { vista = b.dataset.v; abrirMenu(false); dibujar(); window.scrollTo(0, 0); });
+  const pintaTema = () => { const t = localStorage.getItem("tema") || "auto"; document.querySelectorAll(".tema button").forEach(b => b.classList.toggle("activo", b.dataset.t === t)); };
+  document.querySelectorAll(".tema button").forEach(b => b.onclick = () => {
+    if (b.dataset.t === "auto") { localStorage.removeItem("tema"); delete document.documentElement.dataset.tema; } else { localStorage.setItem("tema", b.dataset.t); document.documentElement.dataset.tema = b.dataset.t; }
+    pintaTema(); dibujar(); });
+  pintaTema();
+  document.getElementById("act").onclick = () => { abrirMenu(false); actualizar(); };
+  document.getElementById("salir").onclick = async () => { await kv("del", "clave"); localStorage.removeItem("gh"); location.reload(); };
+  document.getElementById("h-cerrar").onclick = cerrarHoja;
+}
+function abrirHoja(titulo, html) { document.getElementById("h-tit").textContent = titulo; document.getElementById("h-cuerpo").innerHTML = html; document.getElementById("hoja").classList.add("ver"); document.getElementById("velo").classList.add("ver"); }
+function cerrarHoja() { document.getElementById("hoja").classList.remove("ver"); if (!document.getElementById("menu").classList.contains("ver")) document.getElementById("velo").classList.remove("ver"); }
 function dibujar() {
-  const nombres = { inicio: "Inicio", mes: "Control del mes", f29: "F29", libros: "Compras y ventas", mas: "Más" };
-  document.getElementById("app").innerHTML = `<header><h1>${nombres[vista]}</h1><small>al ${esc(D.generado.replace("T", " "))}</small></header>
-    <main id="m"></main><nav>${Object.keys(nombres).map(k => `<button data-v="${k}" class="${k === vista ? "activo" : ""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>${nombres[k].split(" ")[0]}</button>`).join("")}</nav>`;
-  document.querySelectorAll("nav button").forEach(b => b.onclick = () => { vista = b.dataset.v; dibujar(); window.scrollTo(0, 0); });
-  ({ inicio: vInicio, mes: vMes, f29: vF29, libros: vLibros, mas: vMas })[vista](document.getElementById("m"));
+  const s = SECC.find(x => x[0] === vista);
+  document.getElementById("titulo").textContent = s[1];
+  document.querySelectorAll("aside nav button").forEach(b => b.classList.toggle("activo", b.dataset.v === vista));
+  ({ inicio: vInicio, mes: vMes, f29: vF29, libros: vLibros, honorarios: vHon, renta: vRenta, calendario: vCal })[vista](document.getElementById("m"));
 }
 const nomCli = id => (D.clientes.find(c => c.id == id) || {}).nombre || "";
-const selCli = (lista) => `<select id="cli">${lista.map(c => `<option value="${c.id}" ${c.id == cliSel ? "selected" : ""}>${esc(c.nombre)}</option>`).join("")}</select>`;
+const selCli = lista => `<select id="cli">${lista.map(c => `<option value="${c.id}" ${c.id == cliSel ? "selected" : ""}>${esc(c.nombre)}</option>`).join("")}</select>`;
 const LISTO = { f29: ["sin movimiento", "declarado", "pagado"], previred: ["pagado", "no aplica"], honorario: ["pagado", "no cobrar"] };
+const fch = f => f ? `${f.slice(8, 10)}-${f.slice(5, 7)}` : "";
 
+// ---------- pantallas ----------
 function vInicio(m) {
   const p = D.periodos[1], c = D.control[p] || {};
   const cuenta = campo => D.clientes.filter(x => (campo !== "previred" || x.tiene_trabajadores) && !LISTO[campo].includes((c[x.id] || {})[campo])).length;
   m.innerHTML = `<div class="kpis"><div class="kpi"><b>${cuenta("f29")}</b><span>F29 pendientes<br>${MES[+p.slice(4) - 1]}</span></div>
       <div class="kpi"><b>${cuenta("previred")}</b><span>Previred<br>pendientes</span></div><div class="kpi"><b>${cuenta("honorario")}</b><span>Honorarios<br>por cobrar</span></div></div>
+    ${D.serie ? `<div class="panel"><h2>Ventas y compras de todos los clientes</h2><div class="graf" id="g-serie"></div></div>` : ""}
+    ${D.estado_f29 ? `<div class="panel"><h2>F29 de los últimos meses</h2><div class="graf" id="g-f29" style="height:200px"></div></div>` : ""}
     <div class="panel"><h2>Diferencias y avisos</h2>${D.alertas.length ? D.alertas.map(a => `<div class="alerta">${esc(a.texto)}</div>`).join("") : '<p class="s">Todo en orden.</p>'}</div>
-    <div class="panel"><h2>Próximos vencimientos</h2>${D.vencimientos.slice(0, 10).map(v => `<div class="fila"><span>${esc(v.titulo)}</span><span class="s n">${v.fecha.slice(8)}-${v.fecha.slice(5, 7)}</span></div>`).join("") || '<p class="s">Sin vencimientos.</p>'}</div>
-    <div class="panel"><button class="btn sec" id="act">Actualizar datos</button><p class="s" style="margin:8px 0 0">Los datos se actualizan cuando el PC sincroniza (viernes, día 22 o con el botón "Enviar al celular").</p>
-      <button class="btn sec" id="salir" style="margin-top:10px">Cerrar sesión en este teléfono</button></div>`;
-  document.getElementById("act").onclick = async () => { try { const s = await traerSobre(); D = await abrir(s, CLAVE); await despues(); } catch (e) { alert("No se pudo actualizar: " + e.message); } };
-  document.getElementById("salir").onclick = async () => { await kv("del", "clave"); localStorage.removeItem("gh"); location.reload(); };
+    <div class="panel"><h2>Próximos vencimientos</h2>${D.vencimientos.slice(0, 8).map(v => `<div class="fila"><span>${esc(v.titulo)}</span><span class="s n">${fch(v.fecha)}</span></div>`).join("") || '<p class="s">Sin vencimientos.</p>'}</div>`;
+  if (D.serie) barras(document.getElementById("g-serie"), D.serie.map(x => MES[+x.periodo.slice(4) - 1].slice(0, 3)),
+    [{ nombre: "Ventas", valores: D.serie.map(x => x.ventas), color: "--s1" }, { nombre: "Compras", valores: D.serie.map(x => x.compras), color: "--s2" }]);
+  if (D.estado_f29) barras(document.getElementById("g-f29"), D.estado_f29.map(x => MES[+x.periodo.slice(4) - 1].slice(0, 3)),
+    [{ nombre: "Declarados", valores: D.estado_f29.map(x => x.declarado), color: "--s3" }, { nombre: "Pendientes", valores: D.estado_f29.map(x => x.pendiente), color: "--s2" },
+     { nombre: "Sin dato", valores: D.estado_f29.map(x => x.sin_dato), color: "--linea" }], { apilado: true });
 }
 function vMes(m) {
   const c = D.control[periodo] || {};
@@ -204,43 +277,95 @@ function vMes(m) {
       <label>Honorario${sel(x.id, "honorario", e.honorario || "")}</label></div></div>`; }).join("")}`;
   estadoSync();
   document.getElementById("per").onchange = e => { periodo = e.target.value; vMes(m); };
-  document.getElementById("bus").oninput = e => { const q = e.target.value.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-    m.querySelectorAll(".cli").forEach(d => d.style.display = d.dataset.n.normalize("NFD").replace(/[̀-ͯ]/g, "").includes(q) ? "" : "none"); };
-  m.querySelectorAll("select[data-c]").forEach(s => s.onchange = () => { marcar(+s.dataset.c, s.dataset.f, s.value);
-    s.className = !s.value ? "" : LISTO[s.dataset.f].includes(s.value) ? "ok" : "pend"; });
+  const sinT = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
+  document.getElementById("bus").oninput = e => { const q = sinT(e.target.value.toLowerCase()); m.querySelectorAll(".cli").forEach(d => d.style.display = sinT(d.dataset.n).includes(q) ? "" : "none"); };
+  m.querySelectorAll("select[data-c]").forEach(s => s.onchange = () => { marcar(+s.dataset.c, s.dataset.f, s.value); s.className = !s.value ? "" : LISTO[s.dataset.f].includes(s.value) ? "ok" : "pend"; });
 }
 function vF29(m) {
   const lista = D.clientes.filter(c => (D.f29[c.id] || []).length);
   if (!lista.some(c => c.id == cliSel)) cliSel = lista[0]?.id;
-  const f = (D.f29[cliSel] || []);
-  m.innerHTML = `<div class="barra">${selCli(lista)}</div>${f.map(x => { const d = x.dif || {};
-    const ok = (a, b) => b === null || b === undefined ? "" : Math.abs(a - b) <= 5 ? '<span class="chip ok">✔ cuadra</span>' : `<span class="chip mal">dif. ${$p(a - b)}</span>`;
-    return `<div class="panel"><h2>${mesN(x.p)}</h2><div class="fila"><span>Total pagado (cód. 91)</span><b class="n">${$p(x.t91)}</b></div>
+  const f = D.f29[cliSel] || [], anio = f.filter(x => x.p.startsWith(String(D.anio))).slice().reverse();
+  const ok = (a, b) => b === null || b === undefined ? "" : Math.abs(a - b) <= 5 ? '<span class="chip ok">✔ cuadra</span>' : `<span class="chip mal">dif. ${$p(a - b)}</span>`;
+  m.innerHTML = `<div class="barra">${selCli(lista)}</div>
+    ${anio.length ? `<div class="panel"><h2>Pagado en cada F29 (cód. 91) ${D.anio}</h2><div class="graf" id="g-91" style="height:200px"></div></div>` : ""}
+    ${f.map(x => { const d = x.dif || {}; return `<div class="panel"><h2>${mesN(x.p)}</h2><div class="fila"><span>Total pagado (cód. 91)</span><b class="n">${$p(x.t91)}</b></div>
       <div class="fila"><span>IVA débito (538)</span><span class="n">${$p(x.c["538"] ?? 0)} ${ok(d.debito_f29, d.debito_libros)}</span></div>
       <div class="fila"><span>IVA crédito del mes</span><span class="n">${$p(d.credito_f29)} ${ok(d.credito_f29, d.credito_libros)}</span></div>
       <div class="fila"><span>Remanente (077)</span><span class="n">${$p(x.c["077"] ?? 0)}</span></div>
       <div class="fila"><span>PPM (062)</span><span class="n">${$p(x.c["062"] ?? 0)}</span></div>
       <div class="fila s"><span>Folio ${esc(x.folio || "")}</span><span>${esc(x.fecha || "")}</span></div></div>`; }).join("") || '<p class="s">Sin F29.</p>'}`;
   document.getElementById("cli").onchange = e => { cliSel = +e.target.value; vF29(m); };
+  if (anio.length) barras(document.getElementById("g-91"), anio.map(x => MES[+x.p.slice(4) - 1].slice(0, 3)),
+    [{ nombre: "Pagado", valores: anio.map(x => x.t91 || 0), color: "--s1" }, { nombre: "PPM", valores: anio.map(x => x.c["062"] || 0), color: "--s3", linea: true }]);
 }
 function vLibros(m) {
   const lista = D.clientes.filter(c => (D.libros[c.id] || []).length);
   if (!lista.some(c => c.id == cliSel)) cliSel = lista[0]?.id;
-  const l = D.libros[cliSel] || [];
-  const t = k => l.reduce((s, x) => s + (x[k] || 0), 0);
-  m.innerHTML = `<div class="barra">${selCli(lista)}</div><div class="panel desliza"><table><thead><tr><th>Mes</th><th class="n">Ventas netas</th><th class="n">IVA déb.</th><th class="n">Compras</th><th class="n">IVA créd.</th><th class="n">IVA</th></tr></thead><tbody>
-    ${l.map(x => `<tr><td>${MES[+x.p.slice(4) - 1].slice(0, 3)}</td><td class="n">${nf.format(x.vn + x.ve)}</td><td class="n">${nf.format(x.deb)}</td><td class="n">${nf.format(x.cn + x.ce)}</td><td class="n">${nf.format(x.cre)}</td><td class="n">${nf.format(x.deb - x.cre)}</td></tr>`).join("")}
-    <tr><th>Total</th><th class="n">${nf.format(t("vn") + t("ve"))}</th><th class="n">${nf.format(t("deb"))}</th><th class="n">${nf.format(t("cn") + t("ce"))}</th><th class="n">${nf.format(t("cre"))}</th><th class="n">${nf.format(t("deb") - t("cre"))}</th></tr></tbody></table></div>
-    <p class="s">IVA: positivo = a pagar, negativo = crédito (sin el remanente del mes anterior).</p>`;
+  const l = D.libros[cliSel] || [], t = k => l.reduce((s, x) => s + (x[k] || 0), 0);
+  m.innerHTML = `<div class="barra">${selCli(lista)}</div>
+    <div class="panel"><h2>Ventas y compras ${D.anio}</h2><div class="graf" id="g-vc"></div></div>
+    <div class="panel"><h2>IVA de cada mes</h2><div class="graf" id="g-iva" style="height:190px"></div><p class="s" style="margin:4px 0 0">Positivo = a pagar; negativo = crédito (sin el remanente anterior).</p></div>
+    <div class="panel desliza"><table><thead><tr><th>Mes</th><th class="n">Ventas</th><th class="n">IVA déb.</th><th class="n">Compras</th><th class="n">IVA créd.</th></tr></thead><tbody>
+    ${l.map(x => `<tr class="clic" data-p="${x.p}"><td>${MES[+x.p.slice(4) - 1].slice(0, 3)} ›</td><td class="n">${nf.format(x.vn + x.ve)}</td><td class="n">${nf.format(x.deb)}</td><td class="n">${nf.format(x.cn + x.ce)}</td><td class="n">${nf.format(x.cre)}</td></tr>`).join("")}
+    <tr><th>Total</th><th class="n">${nf.format(t("vn") + t("ve"))}</th><th class="n">${nf.format(t("deb"))}</th><th class="n">${nf.format(t("cn") + t("ce"))}</th><th class="n">${nf.format(t("cre"))}</th></tr></tbody></table>
+    <p class="s" style="margin:6px 0 0">Toca un mes para ver sus documentos.</p></div>`;
   document.getElementById("cli").onchange = e => { cliSel = +e.target.value; vLibros(m); };
+  m.querySelectorAll("tr.clic").forEach(tr => tr.onclick = () => detalleMes(tr.dataset.p));
+  const cats = l.map(x => MES[+x.p.slice(4) - 1].slice(0, 3));
+  barras(document.getElementById("g-vc"), cats, [{ nombre: "Ventas", valores: l.map(x => x.vn + x.ve), color: "--s1" }, { nombre: "Compras", valores: l.map(x => x.cn + x.ce), color: "--s2" }]);
+  barras(document.getElementById("g-iva"), cats, [{ nombre: "IVA", valores: l.map(x => x.deb - x.cre), color: "--s3" }]);
 }
-function vMas(m) {
+async function detalleMes(p) {
+  abrirHoja(`${nomCli(cliSel)} · ${mesN(p)}`, '<p class="s">Cargando documentos…</p>');
+  if (!DOCS) { try { DOCS = await abrir(await traer("data/docs.enc"), CLAVE); } catch (e) { document.getElementById("h-cuerpo").innerHTML = '<p class="s">No se pudo cargar el detalle. Revisa la conexión.</p>'; return; } }
+  const docs = (DOCS[cliSel] || []).filter(d => d[0] === p);
+  let lado = "VENTA";
+  const pinta = () => {
+    const ds = docs.filter(d => d[1] === lado && d[2] !== "PENDIENTE");
+    const pend = docs.filter(d => d[1] === lado && d[2] === "PENDIENTE");
+    const sum = k => ds.reduce((s, d) => s + (d[k] || 0), 0);
+    const fila = d => `<div class="doc"><div class="l1"><span>${esc(TIPOS[d[3]] || "Tipo " + d[3])} ${String(d[4]).startsWith("RESUMEN") ? "" : "N° " + esc(d[4])}</span><b class="n ${d[10] < 0 ? "neg" : ""}">${$p(d[10])}</b></div>
+      <div class="l2"><span>${esc(d[6] || "")}${d[5] ? " · " + fch(d[5]) : ""}</span><span class="n">neto ${nf.format(d[8] + d[7])} · IVA ${nf.format(d[9])}</span></div></div>`;
+    document.getElementById("h-cuerpo").innerHTML = `<div class="seg"><button data-l="VENTA" class="${lado === "VENTA" ? "activo" : ""}">Ventas (${docs.filter(d => d[1] === "VENTA" && d[2] !== "PENDIENTE").length})</button>
+        <button data-l="COMPRA" class="${lado === "COMPRA" ? "activo" : ""}">Compras (${docs.filter(d => d[1] === "COMPRA" && d[2] !== "PENDIENTE").length})</button></div>
+      <div class="fila"><span>Neto + exento</span><b class="n">${$p(sum(8) + sum(7))}</b></div><div class="fila"><span>IVA</span><b class="n">${$p(sum(9))}</b></div><div class="fila"><span>Total</span><b class="n">${$p(sum(10))}</b></div>
+      ${ds.map(fila).join("") || '<p class="s">Sin documentos.</p>'}
+      ${pend.length ? `<h2 style="font-size:14px;margin:14px 0 4px">Pendientes de aceptar (${pend.length})</h2>${pend.map(fila).join("")}` : ""}`;
+    document.querySelectorAll("#h-cuerpo .seg button").forEach(b => b.onclick = () => { lado = b.dataset.l; pinta(); });
+  };
+  pinta();
+}
+function vHon(m) {
+  m.innerHTML = Object.entries(D.honorarios).map(([cid, l]) => { const r = l.reduce((s, x) => s + x.r, 0), b = l.reduce((s, x) => s + x.b, 0);
+    const mal = l.filter(x => x.f151 !== null && Math.abs(x.r - x.f151) > 5);
+    return `<div class="panel"><h2>${esc(nomCli(cid))}</h2><div class="fila"><span>Boletas</span><span class="n">${l.reduce((s, x) => s + x.n, 0)}</span></div>
+      <div class="fila"><span>Bruto</span><span class="n">${$p(b)}</span></div><div class="fila"><span>Retenido</span><span class="n">${$p(r)} ${mal.length ? `<span class="chip mal">${mal.length} mes(es) no calza(n) con cód. 151</span>` : '<span class="chip ok">✔ igual al F29</span>'}</span></div>
+      ${l.map(x => `<div class="fila s"><span>${MES[+x.p.slice(4) - 1]}</span><span class="n">${x.n} bol. · ${$p(x.r)}</span></div>`).join("")}</div>`; }).join("") || '<p class="s">Sin boletas de honorarios.</p>';
+}
+function vRenta(m) {
   const ren = D.renta.filter(r => !r.incompleto).sort((a, b) => b.resultado - a.resultado);
-  m.innerHTML = `<div class="panel"><h2>Renta estimada ${D.anio + 1}</h2>${ren.map(r => `<div class="fila"><span>${esc(nomCli(r.id))}</span><b class="n" style="color:${r.resultado > 0 ? "var(--rojo)" : "var(--ok)"}">${$p(r.resultado)}</b></div>`).join("") || '<p class="s">Sin datos.</p>'}
-      <p class="s" style="margin:6px 0 0">Positivo = a pagar; negativo = devolución.</p></div>
-    <div class="panel"><h2>Honorarios ${D.anio}</h2>${Object.entries(D.honorarios).map(([cid, l]) => { const r = l.reduce((s, x) => s + x.r, 0), b = l.reduce((s, x) => s + x.b, 0);
-      const mal = l.filter(x => x.f151 !== null && Math.abs(x.r - x.f151) > 5); return `<div class="fila"><span>${esc(nomCli(cid))}<br><span class="s">${l.reduce((s, x) => s + x.n, 0)} boletas · bruto ${$p(b)}</span></span><span class="n">${$p(r)}<br>${mal.length ? `<span class="chip mal">${mal.length} mes(es) no calza(n)</span>` : '<span class="chip ok">✔</span>'}</span></div>`; }).join("") || '<p class="s">Sin boletas.</p>'}</div>
-    <div class="panel"><h2>Vencimientos</h2>${D.vencimientos.map(v => `<div class="fila"><span>${esc(v.titulo)}</span><span class="s n">${v.fecha.slice(8)}-${v.fecha.slice(5, 7)}</span></div>`).join("")}</div>`;
+  const pagan = ren.filter(r => r.resultado > 0).reduce((s, r) => s + r.resultado, 0), dev = ren.filter(r => r.resultado < 0).reduce((s, r) => s + r.resultado, 0);
+  m.innerHTML = `<div class="kpis" style="grid-template-columns:1fr 1fr"><div class="kpi"><b>${corto(pagan)}</b><span>saldrían a pagar</span></div><div class="kpi"><b>${corto(-dev)}</b><span>devolución</span></div></div>
+    <div class="panel"><h2>Renta estimada AT ${D.anio + 1}</h2>${ren.map(r => `<div class="fila"><span>${esc(nomCli(r.id))}</span><b class="n" style="color:${r.resultado > 0 ? "var(--rojo)" : "var(--ok)"}">${$p(r.resultado)}</b></div>`).join("") || '<p class="s">Sin datos.</p>'}
+    <p class="s" style="margin:6px 0 0">Positivo = a pagar; negativo = devolución. Es una estimación con los F29 y libros del año.</p></div>`;
+}
+function vCal(m) {
+  const hoy = new Date(); calMes = calMes || `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}`;
+  const [a, mm] = calMes.split("-").map(Number), primero = new Date(a, mm - 1, 1), inicio = new Date(primero); inicio.setDate(1 - ((primero.getDay() + 6) % 7));
+  const porDia = {}; (D.calendario || D.vencimientos).forEach(v => (porDia[v.fecha] ??= []).push(v));
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const hoyIso = iso(hoy); calDia = calDia && calDia.startsWith(calMes) ? calDia : (hoyIso.startsWith(calMes) ? hoyIso : null);
+  let celdas = ""; for (let i = 0; i < 42; i++) { const d = new Date(inicio); d.setDate(inicio.getDate() + i); const k = iso(d), ev = porDia[k] || [];
+    celdas += `<button data-d="${k}" class="${d.getMonth() !== mm - 1 ? "otro" : ""} ${k === hoyIso ? "hoy" : ""} ${k === calDia ? "sel" : ""}">${d.getDate()}${ev.length ? `<i>${ev.slice(0, 3).map(v => `<b class="${esc(v.tipo)}"></b>`).join("")}</i>` : ""}</button>`; }
+  const delMes = Object.keys(porDia).filter(k => k.startsWith(calMes)).sort();
+  m.innerHTML = `<div class="panel"><div class="barra" style="align-items:center"><button class="btn sec" id="c-ant" style="flex:0 0 46px">‹</button>
+      <b style="text-align:center">${MES[mm - 1]} ${a}</b><button class="btn sec" id="c-sig" style="flex:0 0 46px">›</button></div>
+      <div class="cal">${["L", "M", "M", "J", "V", "S", "D"].map(x => `<div class="dn">${x}</div>`).join("")}${celdas}</div>
+      <p class="s" style="margin:8px 0 0"><span class="chip" style="color:var(--s1)">● F29</span> <span class="chip" style="color:var(--s3)">● Previred</span> <span class="chip" style="color:var(--s2)">● Propio</span> <span class="chip" style="color:var(--aviso)">● Otros</span></p></div>
+    <div class="panel"><h2>${calDia ? "Día " + fch(calDia) : "Vencimientos del mes"}</h2>${(calDia ? porDia[calDia] || [] : delMes.flatMap(k => porDia[k])).map(v => `<div class="fila"><span>${esc(v.titulo)}</span><span class="s n">${fch(v.fecha)}</span></div>`).join("") || '<p class="s">Nada ese día.</p>'}</div>`;
+  const mover = k => { const d = new Date(a, mm - 1 + k, 1); calMes = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; calDia = null; vCal(m); };
+  document.getElementById("c-ant").onclick = () => mover(-1); document.getElementById("c-sig").onclick = () => mover(1);
+  m.querySelectorAll(".cal button").forEach(b => b.onclick = () => { calDia = calDia === b.dataset.d ? null : b.dataset.d; if (!b.dataset.d.startsWith(calMes)) { calMes = b.dataset.d.slice(0, 7); } vCal(m); });
 }
 window.addEventListener("online", enviarMarcas);
 iniciar();
