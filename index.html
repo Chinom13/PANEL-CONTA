@@ -78,6 +78,11 @@ tr.clic td{cursor:pointer}tr.clic td:first-child{color:var(--marca);font-weight:
 .seg{display:flex;background:var(--chip);border-radius:999px;padding:4px;margin-bottom:10px}.seg button{flex:1;border:0;background:none;color:var(--suave);padding:8px;border-radius:999px;font:13px system-ui}.seg button.activo{background:var(--grad);color:#fff;font-weight:600}
 .doc{padding:8px 0;border-bottom:1px solid var(--linea);font-size:13px}.doc .l1{display:flex;justify-content:space-between;gap:8px}.doc .l2{display:flex;justify-content:space-between;gap:8px;color:var(--suave);font-size:12px;margin-top:2px}
 .neg{color:var(--rojo)}
+/* calculadoras */
+.seg.desliza{scrollbar-width:none}.seg.desliza::-webkit-scrollbar{display:none}
+.form-m{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form-m label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--suave)}
+.res{background:var(--grad);color:#fff;border-radius:22px;padding:16px 18px;margin-bottom:14px;box-shadow:0 10px 26px rgba(59,130,246,.28)}
+.res span{font-size:12.5px;opacity:.9;display:block}.res b{display:block;font-size:30px;margin:2px 0;font-variant-numeric:tabular-nums}.res small{opacity:.9;font-size:12.5px}
 </style>
 </head>
 <body>
@@ -221,6 +226,8 @@ const SECC = [
   ["honorarios", "Honorarios", '<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2zM9 8h6M9 12h6"/>'],
   ["renta", "Renta estimada", '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 19h0"/>'],
   ["calendario", "Vencimientos", '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'],
+  ["calc", "Calculadoras", '<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8M8 12h1M12 12h1M16 12h0M8 16h1M12 16h1M16 16v0"/>'],
+  ["ind", "Indicadores", '<path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>'],
 ];
 function armar() {
   document.getElementById("app").innerHTML = `<header><button class="hamb" id="hamb" aria-label="Menú"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -253,7 +260,7 @@ function dibujar() {
   const s = SECC.find(x => x[0] === vista);
   document.getElementById("titulo").textContent = s[1];
   document.querySelectorAll("aside nav button").forEach(b => b.classList.toggle("activo", b.dataset.v === vista));
-  ({ inicio: vInicio, mes: vMes, f29: vF29, libros: vLibros, honorarios: vHon, renta: vRenta, calendario: vCal })[vista](document.getElementById("m"));
+  ({ inicio: vInicio, mes: vMes, f29: vF29, libros: vLibros, honorarios: vHon, renta: vRenta, calendario: vCal, calc: vCalc, ind: vInd })[vista](document.getElementById("m"));
 }
 const nomCli = id => (D.clientes.find(c => c.id == id) || {}).nombre || "";
 const selCli = lista => `<select id="cli">${lista.map(c => `<option value="${c.id}" ${c.id == cliSel ? "selected" : ""}>${esc(c.nombre)}</option>`).join("")}</select>`;
@@ -375,6 +382,152 @@ function vCal(m) {
   const mover = k => { const d = new Date(a, mm - 1 + k, 1); calMes = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; calDia = null; vCal(m); };
   document.getElementById("c-ant").onclick = () => mover(-1); document.getElementById("c-sig").onclick = () => mover(1);
   m.querySelectorAll(".cal button").forEach(b => b.onclick = () => { calDia = calDia === b.dataset.d ? null : b.dataset.d; if (!b.dataset.d.startsWith(calMes)) { calMes = b.dataset.d.slice(0, 7); } vCal(m); });
+}
+// ---------- calculadoras (mismas fórmulas que calculos.py de la app del PC) ----------
+const IND0 = { periodo: "Noviembre 2026", uf: 41439.89, utm: 72440, imm: 553553, tope_afp_uf: 90, tope_afc_uf: 135.2,
+  afp: { Capital: 11.44, Cuprum: 11.44, Habitat: 11.27, PlanVital: 11.16, ProVida: 11.45, Modelo: 10.58, Uno: 10.46 }, salud: 7,
+  emp_cuenta_individual: 0.1, emp_rentabilidad_protegida: 0.9, emp_expectativa_vida: 0.71, sis: 1.79, mutual: 0.93,
+  afc: { indefinido: [2.4, 0.6], plazo_fijo: [3, 0], indefinido_11: [0.8, 0] }, asig_familiar: [[649039, 22601], [947990, 13870], [1478539, 4382]], jornada: 42,
+  impuesto: [[13.5, 0, 0], [30, .04, .54], [50, .08, 1.74], [70, .135, 4.49], [90, .23, 11.14], [120, .304, 17.8], [310, .35, 23.32], [null, .4, 38.82]],
+  ret_honorarios: { 2024: 13.75, 2025: 14.5, 2026: 15.25, 2027: 16, 2028: 17 } };
+const IND = () => ({ ...IND0, ...((D.indicadores || {}).calc || {}) });
+const R = x => x >= 0 ? Math.floor(x + 0.5) : -Math.floor(-x + 0.5);
+const nn = v => { if (v === null || v === undefined || v === "") return 0; const s = String(v).replace(/[^\d,.\-]/g, ""); const t = s.includes(",") ? s.replace(/\./g, "").replace(",", ".") : s.replace(/\./g, ""); const x = parseFloat(t); return isNaN(x) ? 0 : x; };
+const nd = v => { const x = parseFloat(String(v ?? "").replace(",", ".")); return isNaN(x) ? 0 : x; };
+function impUnico(base, I) {
+  if (base <= 0) return [0, 0, 0];
+  if (I.impuesto_pesos) { for (const [h, f, r] of I.impuesto_pesos) if (h === null || base <= h) return [Math.max(R(base * f - r), 0), f, r]; return [0, 0, 0]; }
+  for (const [h, f, r] of I.impuesto) if (h === null || base <= h * I.utm) return [Math.max(R(base * f - r * I.utm), 0), f, r * I.utm];
+  return [0, 0, 0];
+}
+function cHonorarios(d, I) {
+  const anio = String(d.anio || new Date().getFullYear()), tasa = I.ret_honorarios[anio] ?? 15.25, t = tasa / 100, monto = nn(d.monto);
+  let bruto = R(monto);
+  if (d.desde === "liquido") { bruto = R(monto / (1 - t)); for (const b of [bruto - 1, bruto, bruto + 1]) if (b - R(b * t) === R(monto)) { bruto = b; break; } }
+  const ret = R(bruto * t); return { anio, tasa, bruto, retencion: ret, liquido: bruto - ret };
+}
+const valorHE = (s, j) => (!s || !j) ? [0, 0] : [s / 30 * 28 / (j * 4), s / 30 * 28 / (j * 4) * 1.5];
+function cLiquidacion(d, I) {
+  const uf = I.uf, topeAfp = R(I.tope_afp_uf * uf), topeAfc = R(I.tope_afc_uf * uf), sueldo = nn(d.sueldo);
+  const dias = Math.min(Math.max(d.dias === "" || d.dias === undefined ? 30 : nd(d.dias), 0), 30), jornada = nd(d.jornada) || I.jornada;
+  const base = R(sueldo * dias / 30), vhe = valorHE(sueldo, jornada)[1], he = R(vhe * nd(d.horas_extras)), bonos = R(nn(d.bonos));
+  const topeG = R(4.75 * I.imm / 12), modo = d.gratificacion || "legal";
+  const grat = modo === "legal" ? Math.min(R((base + he + bonos) * .25), topeG) : 0;
+  const imp = base + he + bonos + grat, iA = Math.min(imp, topeAfp), iC = Math.min(imp, topeAfc);
+  const tasaAfp = I.afp[d.afp] ?? Object.values(I.afp)[0], afp = R(iA * tasaAfp / 100), saludL = R(iA * I.salud / 100);
+  const salud = d.salud === "isapre" && nd(d.isapre_uf) ? Math.max(saludL, R(nd(d.isapre_uf) * uf)) : saludL;
+  const [afcE, afcT] = I.afc[d.contrato || "indefinido"] || I.afc.indefinido, afc = R(iC * afcT / 100);
+  const trib = imp - afp - saludL - afc, [iu] = impUnico(trib, I);
+  const cargas = Math.round(nd(d.cargas)), asigM = (I.asig_familiar.find(([h]) => imp <= h) || [0, 0])[1], asig = asigM * cargas;
+  const noImp = R(nn(d.colacion)) + R(nn(d.movilizacion)) + asig, otros = R(nn(d.anticipos));
+  const liquido = imp + noImp - afp - salud - afc - iu - otros;
+  const emp = R(iA * I.sis / 100) + R(iA * I.emp_cuenta_individual / 100) + R(iA * I.emp_rentabilidad_protegida / 100) + R(iA * I.emp_expectativa_vida / 100) + R(iC * afcE / 100) + R(iA * I.mutual / 100);
+  return { haberes: [["Sueldo base" + (dias !== 30 ? ` (${dias} días)` : ""), base], ...(he ? [[`Horas extras (${nd(d.horas_extras)} h)`, he]] : []), ...(bonos ? [["Bonos imponibles", bonos]] : []), ...(grat ? [["Gratificación", grat]] : [])],
+    noimp: [["Colación", R(nn(d.colacion))], ["Movilización", R(nn(d.movilizacion))], [`Asignación familiar (${cargas})`, asig]].filter(x => x[1]),
+    desc: [[`AFP ${d.afp || ""} (${String(tasaAfp).replace(".", ",")}%)`, afp], [d.salud === "isapre" ? "Salud Isapre" : "Salud Fonasa 7%", salud], ["Seguro de cesantía", afc], ["Impuesto único", iu], ...(otros ? [["Anticipos", otros]] : [])],
+    imponible: imp, tributable: trib, liquido, aportes: emp, costo: imp + noImp + emp, topeAfp };
+}
+function cContrato(d, I) {
+  const meta = R(nn(d.liquido)); if (meta <= 0) return null;
+  let lo = 0, hi = Math.max(meta * 4, 1e6); const b = { ...d, dias: 30 };
+  while (lo < hi) { const mid = Math.floor((lo + hi) / 2); b.sueldo = mid; if (cLiquidacion(b, I).liquido < meta) lo = mid + 1; else hi = mid; }
+  b.sueldo = lo; return { sueldo: lo, liq: cLiquidacion(b, I) };
+}
+// finiquito (igual a documentos_laborales.calcular_finiquito)
+const r2 = x => { const y = x * 100, f = Math.floor(y); return (Math.abs(y - f - 0.5) < 1e-9 ? (f % 2 === 0 ? f : f + 1) : Math.round(y)) / 100; };   // como round(x, 2) de Python
+const fISO = s => { const [a, m, d] = s.split("-").map(Number); return new Date(Date.UTC(a, m - 1, d)); };
+const sumarMeses = (d, k) => { const m = d.getUTCMonth() + k, a = d.getUTCFullYear() + Math.floor(m / 12), mm = ((m % 12) + 12) % 12; const ult = new Date(Date.UTC(a, mm + 1, 0)).getUTCDate(); return new Date(Date.UTC(a, mm, Math.min(d.getUTCDate(), ult))); };
+function cFiniquito(f, I, feriados) {
+  const rem = R(nn(f.remuneracion)), uf = R(nn(f.uf) || I.uf), tope = uf ? Math.min(rem, 90 * uf) : rem;
+  if (!(f.inicio && f.termino && rem)) return null;
+  const a = fISO(f.inicio), b = new Date(fISO(f.termino).getTime() + 864e5);
+  let total = (b.getUTCFullYear() - a.getUTCFullYear()) * 12 + b.getUTCMonth() - a.getUTCMonth(); if (sumarMeses(a, total) > b) total--;
+  const anios = Math.floor(total / 12), meses = total % 12, dias = Math.round((b - sumarMeses(a, total)) / 864e5);
+  const ter = fISO(f.termino), diasMes = f.dias_trabajados ? nd(f.dias_trabajados) : ter.getUTCDate();
+  const partes = [["Remuneración pendiente", R(rem / 30 * Math.min(diasMes, 30))]];
+  const prop = r2(1.25 * (meses + dias / 30)), hab = r2(prop + nd(f.vacaciones));
+  let ent = Math.floor(hab), corr = 0, d = new Date(ter);
+  while (ent > 0) { d = new Date(d.getTime() + 864e5); corr++; const w = d.getUTCDay(); if (w !== 0 && w !== 6 && !feriados.includes(d.toISOString().slice(0, 10))) ent--; }
+  corr = r2(corr + hab - Math.floor(hab));
+  partes.push([`Feriado (${String(hab).replace(".", ",")} hábiles = ${String(corr).replace(".", ",")} corridos)`, R(rem / 30 * corr)]);
+  if (f.causal === "161") {
+    const ai = anios >= 1 ? Math.min(11, anios + (meses >= 6 && (meses > 6 || dias > 0) ? 1 : 0)) : 0;
+    partes.push([`Años de servicio (${ai})`, ai * tope]);
+    if (f.aviso !== "con_aviso") partes.push(["Sustitutiva del aviso previo", tope]);
+  }
+  return { antig: `${anios} años, ${meses} meses y ${dias} días`, partes: partes.filter(p => p[1]), total: partes.reduce((s, p) => s + p[1], 0) };
+}
+let calcTipo = "honorarios"; const CD = { honorarios: { desde: "bruto", anio: String(new Date().getFullYear()) }, liquidacion: { afp: "Uno", contrato: "indefinido", gratificacion: "legal", salud: "fonasa" },
+  contrato: { afp: "Uno", contrato: "indefinido", gratificacion: "legal", salud: "fonasa" }, horas: {}, finiquito: { causal: "161", aviso: "sin_aviso" } };
+const filaR = (t, v, b) => `<div class="fila"><span>${esc(t)}</span>${b ? `<b class="n">${$p(v)}</b>` : `<span class="n">${$p(v)}</span>`}</div>`;
+const tarjeta = (et, v, det) => `<div class="res"><span>${et}</span><b>${$p(v)}</b>${det ? `<small>${det}</small>` : ""}</div>`;
+function vCalc(m) {
+  const I = IND(), d = CD[calcTipo];
+  const din = (k, t) => `<label>${t}<input data-k="${k}" inputmode="numeric" value="${d[k] ? nf.format(nn(d[k])) : ""}"></label>`;
+  const num = (k, t, ph) => `<label>${t}<input data-k="${k}" inputmode="decimal" value="${esc(d[k] ?? "")}" placeholder="${ph || ""}"></label>`;
+  const sel = (k, t, ops) => `<label>${t}<select data-k="${k}">${ops.map(([v, x]) => `<option value="${v}" ${String(d[k] ?? "") === String(v) ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>`;
+  const comunes = () => sel("afp", "AFP", Object.entries(I.afp).map(([a, p]) => [a, `${a} ${String(p).replace(".", ",")}%`])) + sel("contrato", "Contrato", [["indefinido", "Indefinido"], ["plazo_fijo", "Plazo fijo"], ["indefinido_11", "Indef. 11+ años"]])
+    + sel("salud", "Salud", [["fonasa", "Fonasa 7%"], ["isapre", "Isapre"]]) + (d.salud === "isapre" ? num("isapre_uf", "Plan Isapre (UF)", "3,2") : "")
+    + sel("gratificacion", "Gratificación", [["legal", "Legal (tope 4,75 IMM)"], ["no", "Sin gratificación"]]) + num("horas_extras", "Horas extras", "0")
+    + din("bonos", "Bonos imponibles") + din("colacion", "Colación") + din("movilizacion", "Movilización") + num("cargas", "Cargas familiares", "0") + din("anticipos", "Anticipos");
+  const F = {
+    honorarios: sel("desde", "Tengo el monto", [["bruto", "Bruto"], ["liquido", "Líquido"]]) + sel("anio", "Año", Object.entries(I.ret_honorarios).map(([a, p]) => [a, `${a} · ${String(p).replace(".", ",")}%`])) + din("monto", "Monto"),
+    liquidacion: din("sueldo", "Sueldo base") + num("dias", "Días trabajados", "30") + comunes(),
+    contrato: din("liquido", "Líquido a pagar") + comunes(),
+    horas: din("sueldo", "Sueldo base") + num("jornada", "Jornada semanal", String(I.jornada)) + num("horas", "Horas extras", "0"),
+    finiquito: `<label>Inicio<input type="date" data-k="inicio" value="${esc(d.inicio || "")}"></label><label>Término<input type="date" data-k="termino" value="${esc(d.termino || "")}"></label>`
+      + din("remuneracion", "Última remuneración") + num("dias_trabajados", "Días del último mes", "día término")
+      + sel("causal", "Causal", [["161", "161 Necesidades empresa"], ["159-1", "Mutuo acuerdo"], ["159-2", "Renuncia"], ["159-4", "Vencimiento plazo"], ["160", "Art. 160"]])
+      + (d.causal === "161" ? sel("aviso", "Aviso", [["sin_aviso", "Sin aviso (< 30 días)"], ["con_aviso", "Con 30 días"]]) : "") + num("vacaciones", "Vacaciones pendientes (días hábiles)", "0"),
+  };
+  m.innerHTML = `<div class="seg desliza" style="overflow-x:auto">${[["honorarios", "Honorarios"], ["liquidacion", "Liquidación"], ["contrato", "Contrato"], ["horas", "H. extras"], ["finiquito", "Finiquito"]]
+      .map(([k, t]) => `<button data-t="${k}" class="${k === calcTipo ? "activo" : ""}" style="white-space:nowrap">${t}</button>`).join("")}</div>
+    <div class="panel"><div class="form-m">${F[calcTipo]}</div></div><div id="c-res"></div>
+    <p class="s">Indicadores de ${esc(I.periodo || "")}: UF ${nf.format(I.uf)} · UTM ${nf.format(I.utm)}. Mismo cálculo que la app del PC.</p>`;
+  m.querySelectorAll(".seg button").forEach(b => b.onclick = () => { calcTipo = b.dataset.t; vCalc(m); });
+  m.querySelectorAll("[data-k]").forEach(el => el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => {
+    if (el.inputMode === "numeric") { const x = el.value.replace(/\D/g, ""); el.value = x ? nf.format(+x) : ""; }
+    d[el.dataset.k] = el.value; if (el.tagName === "SELECT" && ["salud", "causal"].includes(el.dataset.k)) return vCalc(m); res();
+  }));
+  const res = () => {
+    const c = document.getElementById("c-res"); let h = "";
+    if (calcTipo === "honorarios") { const r = cHonorarios(d, I); h = tarjeta(d.desde === "liquido" ? "Bruto de la boleta" : "Líquido a pagar", d.desde === "liquido" ? r.bruto : r.liquido, `Retención ${String(r.tasa).replace(".", ",")}%`)
+      + `<div class="panel">${filaR("Bruto", r.bruto)}${filaR("Retención", r.retencion)}${filaR("Líquido", r.liquido, 1)}</div>`; }
+    else if (calcTipo === "liquidacion" || calcTipo === "contrato") {
+      const k = calcTipo === "contrato" ? cContrato(d, I) : null, l = calcTipo === "contrato" ? k?.liq : cLiquidacion(d, I);
+      if (!l || (calcTipo === "liquidacion" && !nn(d.sueldo))) h = `<p class="s">Escribe ${calcTipo === "contrato" ? "el líquido" : "el sueldo"} para calcular.</p>`;
+      else h = (calcTipo === "contrato" ? tarjeta("Sueldo base para el contrato", k.sueldo, `Da un líquido de ${$p(l.liquido)}`) : tarjeta("Líquido a pagar", l.liquido, `Imponible ${$p(l.imponible)} · costo empresa ${$p(l.costo)}`))
+        + `<div class="panel"><h2>Haberes</h2>${l.haberes.map(([a, b]) => filaR(a, b)).join("")}${filaR("Total imponible", l.imponible, 1)}${l.noimp.map(([a, b]) => filaR(a, b)).join("")}
+          <h2 style="margin-top:12px">Descuentos</h2>${l.desc.map(([a, b]) => filaR(a, b)).join("")}${filaR("Líquido", l.liquido, 1)}
+          <h2 style="margin-top:12px">Empresa</h2>${filaR("Aportes del empleador", l.aportes)}${filaR("Costo total", l.costo, 1)}</div>`;
+    } else if (calcTipo === "horas") { const j = nd(d.jornada) || I.jornada, [vh, ve] = valorHE(nn(d.sueldo), j);
+      h = tarjeta("Total horas extras", R(ve * nd(d.horas)), `${nd(d.horas)} h × ${$p(ve)}`) + `<div class="panel">${filaR("Valor hora ordinaria", vh)}${filaR("Valor hora extra (+50%)", ve, 1)}<p class="s" style="margin:6px 0 0">Sueldo ÷ 30 × 28 ÷ (${j} × 4) × 1,5</p></div>`; }
+    else { const r = cFiniquito(d, I, (D.indicadores || {}).feriados || []);
+      h = r ? tarjeta("Total finiquito", r.total, `Antigüedad: ${r.antig}`) + `<div class="panel">${r.partes.map(([a, b]) => filaR(a, b)).join("")}${filaR("Total", r.total, 1)}</div>` : `<p class="s">Completa fechas y remuneración.</p>`; }
+    c.innerHTML = h;
+  };
+  res();
+}
+// ---------- indicadores previsionales (Previred y SII, bajados por la app del PC) ----------
+function vInd(m) {
+  const X = D.indicadores || {}, p = X.previred, t = X.impuesto;
+  if (!p) { m.innerHTML = `<p class="s">Todavía no hay indicadores: abre la sección Indicadores en la app del PC.</p>`; return; }
+  const pc = v => v === null || v === undefined ? "–" : String(v).replace(".", ",") + "%";
+  const af = Object.entries(p.afp || {}), min = af.length ? Math.min(...af.map(([, v]) => v.trabajador)) : null;
+  m.innerHTML = `<p class="s" style="margin:0 0 10px">Remuneraciones de <b>${esc(p.periodo_texto)}</b> · Previred</p>
+    <div class="kpis" style="grid-template-columns:1fr 1fr">
+      <div class="kpi"><b style="font-size:19px">$${nf.format(p.uf?.[0]?.valor ?? 0)}</b><span>UF al ${esc((p.uf?.[0]?.fecha || "").replace(/ \d{4}$/, ""))}</span></div>
+      <div class="kpi"><b style="font-size:19px">${$p(p.utm_uta?.utm)}</b><span>UTM ${esc(p.utm_uta?.mes || "")}</span></div>
+      <div class="kpi"><b style="font-size:19px">${$p(p.rentas_minimas?.dependientes)}</b><span>Ingreso mínimo</span></div>
+      <div class="kpi"><b style="font-size:19px">${$p(p.tope_afp?.pesos)}</b><span>Tope AFP ${String(p.tope_afp?.uf ?? "").replace(".", ",")} UF</span></div></div>
+    <div class="panel"><h2>Tasas AFP</h2><table><thead><tr><th>AFP</th><th class="n">Trabaj.</th><th class="n">Empl.</th><th class="n">Total</th></tr></thead><tbody>
+      ${af.map(([n, v]) => `<tr><td>${esc(n)}${v.trabajador === min ? ' <span class="chip ok">baja</span>' : ""}</td><td class="n">${pc(v.trabajador)}</td><td class="n">${pc(v.empleador)}</td><td class="n"><b>${pc(v.total)}</b></td></tr>`).join("")}</tbody></table></div>
+    <div class="panel"><h2>Seguro social y cesantía</h2>${[["Rentabilidad protegida", p.seguro_social?.rentabilidad_protegida], ["Expectativa de vida", p.seguro_social?.expectativa_vida], ["SIS", p.seguro_social?.sis]].map(([a, b]) => `<div class="fila"><span>${a}</span><span class="n">${pc(b)}</span></div>`).join("")}
+      ${[["indefinido", "Cesantía indefinido"], ["plazo_fijo", "Cesantía plazo fijo"], ["indefinido_11", "Cesantía 11+ años"]].filter(([k]) => p.afc?.[k]).map(([k, a]) => `<div class="fila"><span>${a}</span><span class="n">${pc(p.afc[k][0])} emp.${p.afc[k][1] ? " · " + pc(p.afc[k][1]) + " trab." : ""}</span></div>`).join("")}</div>
+    <div class="panel"><h2>Topes y mínimos</h2>${[["Tope AFP", p.tope_afp?.pesos], ["Tope IPS", p.tope_ips?.pesos], ["Tope cesantía", p.tope_afc?.pesos], ["Mínimo dependientes", p.rentas_minimas?.dependientes], ["Mínimo <18 y >65", p.rentas_minimas?.menores_mayores], ["Casa particular", p.rentas_minimas?.casa_particular], ["No remuneracional", p.rentas_minimas?.no_remuneracional], ["Gratificación tope mensual", Math.round(4.75 * (p.rentas_minimas?.dependientes || 0) / 12)], ["APV tope mensual", p.apv_mensual?.pesos]].map(([a, b]) => `<div class="fila"><span>${a}</span><span class="n">${$p(b)}</span></div>`).join("")}</div>
+    <div class="panel"><h2>Asignación familiar</h2>${(p.asignacion_familiar || []).map((x, i, a) => `<div class="fila"><span>${esc(x.tramo)} <span class="s">${x.hasta ? (i ? "hasta " : "hasta ") + $p(x.hasta) : "más de " + $p(x.desde)}</span></span><span class="n">${x.monto ? $p(x.monto) : "–"}</span></div>`).join("")}</div>
+    ${t ? `<div class="panel desliza"><h2>Impuesto único ${esc(p.periodo_texto)}</h2><table><thead><tr><th class="n">Hasta</th><th class="n">Factor</th><th class="n">Rebaja</th></tr></thead><tbody>
+      ${t.map(x => `<tr><td class="n">${x.hasta ? $p(x.hasta) : "y más"}</td><td class="n">${x.factor ? String(x.factor).replace(".", ",") : "Exento"}</td><td class="n">${x.rebaja ? $p(x.rebaja) : "–"}</td></tr>`).join("")}</tbody></table></div>` : ""}`;
 }
 window.addEventListener("online", enviarMarcas);
 iniciar();
